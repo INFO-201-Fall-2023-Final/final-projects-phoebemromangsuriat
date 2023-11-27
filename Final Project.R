@@ -7,10 +7,11 @@ instagram_influencerdf <- read.csv("~/Desktop/social media influencers-INSTAGRAM
 
 #renaming columns
 names(instagram_influencerdf)[c(1, 2, 3, 4, 5, 6, 7, 8, 9)] <- c("Rank", "Name", "Instagram Name", "Category 1", "Category 2", "Followers", "Country", "Engagement", "Avg Engagement")
+
 #deleting top row 
 instagram_influencerdf <- instagram_influencerdf[-1, ]
 
-#changing "followers" from string to numeric value 
+#changing "Followers" from string to numeric value 
 instagram_influencerdf$Followers <- ifelse(
   str_detect(instagram_influencerdf$Followers, "K"),
   as.numeric(str_replace_all(instagram_influencerdf$Followers, "K", "")) * 1000,
@@ -22,25 +23,33 @@ instagram_influencerdf$Followers <- ifelse(
 
 #creating a new column to categorize influencer impact 
 instagram_influencerdf$Impact <- ifelse(
-  instagram_influencerdf$Followers > 1000000,
+  instagram_influencerdf$Followers > 10000000,
   "Mega",
   ifelse(
-    instagram_influencerdf$Followers >= 100000, 
+    instagram_influencerdf$Followers >= 1000000, 
     "Macro",
     ifelse(
-      instagram_influencerdf$Followers >= 1000, 
+      instagram_influencerdf$Followers >= 10000, 
       "Micro",
-      ifelse(
-        instagram_influencerdf$Followers < 1000, 
-        "Nano",
-      )
     )
   )
 )
 
 #merging our two datasets 
-df <- merge(x=marketing_salesdf, y=instagram_influencerdf, by.x="Influencer", by.y="Impact", all=TRUE) 
+df <- merge(x=marketing_salesdf, y=instagram_influencerdf, by.x="Influencer", by.y="Impact", all.x=TRUE) 
+
+#deleting all the NAs 
+df <- na.omit(df) 
+
+#summarization of average followers grouped by influencer categories 
+category_followers <- summarize(
+  group_by(df, `Category 1`),
+  avg_followers = mean(Followers)
+)
+
+#deleting all the Nano influencers, we would like to focus on one industry only
+df <- df[df$'Category 1' == "Fashion",] 
+
 
 #downloading the joint dataset into my computer 
-write.csv(df, "Joint df.csv", row.names=FALSE) 
-
+write.csv(df, "Joint df.csv", row.names=FALSE)
