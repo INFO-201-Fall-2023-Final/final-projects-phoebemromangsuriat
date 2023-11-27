@@ -41,5 +41,6 @@ instagram_influencerdf$Impact <- ifelse(
 #merging our two datasets 
 df <- merge(x=marketing_salesdf, y=instagram_influencerdf, by.x="Influencer", by.y="Impact", all=TRUE) 
 
-
+#downloading the joint dataset into my computer 
+write.csv(df, "Joint df.csv", row.names=FALSE) 
 
